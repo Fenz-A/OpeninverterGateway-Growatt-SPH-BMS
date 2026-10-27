@@ -1,0 +1,50 @@
+diff --git a/SRC/ShineWiFi-ModBus/Growatt124.cpp b/SRC/ShineWiFi-ModBus/Growatt124.cpp
+index 851876f..bb8406a 100644
+--- a/SRC/ShineWiFi-ModBus/Growatt124.cpp
++++ b/SRC/ShineWiFi-ModBus/Growatt124.cpp
+@@ -608,11 +608,27 @@ void init_growatt124(sProtocolDefinition_t& Protocol, Growatt& inverter) {
+       POWER_KWH, true, false};
+   // FRAGMENT 4: END
+ 
+-  Protocol.InputFragmentCount = 4;
++  // FRAGMENT 5: BMS (Protocol V1.24, input registers 1086-1096)
++  Protocol.InputRegisters[P124_BMS_SOC] = sGrowattModbusReg_t{
++      1086, 0, SIZE_16BIT, F("BMSStateOfCharge"), 1, 1, PERCENTAGE, true, false};
++  Protocol.InputRegisters[P124_BMS_VOLTAGE] = sGrowattModbusReg_t{
++      1087, 0, SIZE_16BIT, F("BMSBatteryVoltage"), 0.01, 0.01, VOLTAGE, true, false};
++  Protocol.InputRegisters[P124_BMS_CURRENT] = sGrowattModbusReg_t{
++      1088, 0, SIZE_16BIT_S, F("BMSBatteryCurrent"), 0.01, 0.01, CURRENT, true, false};
++  Protocol.InputRegisters[P124_BMS_TEMPERATURE] = sGrowattModbusReg_t{
++      1089, 0, SIZE_16BIT_S, F("BMSBatteryTemperature"), 0.1, 0.1, TEMPERATURE, true, false};
++  Protocol.InputRegisters[P124_BMS_CYCLES] = sGrowattModbusReg_t{
++      1095, 0, SIZE_16BIT, F("BMSCycleCount"), 1, 1, NONE, true, false};
++  Protocol.InputRegisters[P124_BMS_SOH] = sGrowattModbusReg_t{
++      1096, 0, SIZE_16BIT, F("BMSStateOfHealth"), 1, 1, PERCENTAGE, true, false};
++  // FRAGMENT 5: END
++
++  Protocol.InputFragmentCount = 5;
+   Protocol.InputReadFragments[0] = sGrowattReadFragment_t{0, 50};
+   Protocol.InputReadFragments[1] = sGrowattReadFragment_t{53, 43};
+   Protocol.InputReadFragments[2] = sGrowattReadFragment_t{1009, 55};
+   Protocol.InputReadFragments[3] = sGrowattReadFragment_t{1124, 4};
++  Protocol.InputReadFragments[4] = sGrowattReadFragment_t{1086, 11};
+ 
+   // definition of holding registers
+   Protocol.HoldingRegisterCount = 1;
+diff --git a/SRC/ShineWiFi-ModBus/Growatt124.h b/SRC/ShineWiFi-ModBus/Growatt124.h
+index 949923c..2229f3c 100644
+--- a/SRC/ShineWiFi-ModBus/Growatt124.h
++++ b/SRC/ShineWiFi-ModBus/Growatt124.h
+@@ -61,6 +61,12 @@ typedef enum {
+   P124_ETOLOCALLOAD_TOTAL,
+   P124_ACCHARGE_TODAY,
+   P124_ACCHARGE_TOTAL,
++  P124_BMS_SOC,
++  P124_BMS_VOLTAGE,
++  P124_BMS_CURRENT,
++  P124_BMS_TEMPERATURE,
++  P124_BMS_CYCLES,
++  P124_BMS_SOH,
+   P124_INPUT_REGISTER_COUNT
+ } eP124InputRegisters_t;
+ 
